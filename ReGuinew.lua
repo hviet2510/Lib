@@ -173,8 +173,8 @@ local function CreateSidebar(win)
     win.Sidebar = Side
 
     local Layout = Instance.new("UIListLayout",Side)
-    Layout.Padding = UDim.new(0,6)
-    Layout.HorizontalAlignment = Center
+Layout.Padding = UDim.new(0,6)
+Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 end
 
 -----------------------------------------------------
