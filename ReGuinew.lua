@@ -139,9 +139,7 @@ end
 -----------------------------------------------------
 -- WINDOW : CREATE PAGE (stub for part 2)
 -----------------------------------------------------
-function WindowClass:CreatePage(name)
-    warn("[ReGUI Clone] CreatePage will be implemented in Part 2:",name)
-end
+
 
 -----------------------------------------------------
 -- EXPORT
