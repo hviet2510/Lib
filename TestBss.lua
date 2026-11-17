@@ -1,4 +1,4 @@
---// Claim Hive - Fast Tween
+--// Claim Hive - Atlas Style Tween
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -7,51 +7,63 @@ local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
 local Character = Player.Character or Player.CharacterAdded:Wait()
 local HRP = Character:WaitForChild("HumanoidRootPart")
+local Humanoid = Character:WaitForChild("Humanoid")
 
 local Hives = Workspace:WaitForChild("Honeycombs")
 local claimHive = ReplicatedStorage.Events.ClaimHive
 
-local function FastTween(targetCFrame, speed)
-    local distance = (HRP.Position - targetCFrame.Position).Magnitude
-    local duration = math.max(distance / (speed or 200), 0.05) -- tốc độ cao, tối thiểu 0.05s
+local function AtlasTween(targetPosition, speed)
+    speed = speed or 220
+    local startPos = HRP.Position
+    local distance = (startPos - targetPosition).Magnitude
+    local duration = math.clamp(distance / speed, 0.1, 2)
     
-    local tween = TweenService:Create(HRP, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
-        CFrame = targetCFrame
+    -- Tạm tắt collision để đi xuyên vật (giống nhiều script Atlas-style)
+    local oldCanCollide = {}
+    for _, part in pairs(Character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            oldCanCollide[part] = part.CanCollide
+            part.CanCollide = false
+        end
+    end
+    
+    local tweenInfo = TweenInfo.new(
+        duration,
+        Enum.EasingStyle.Linear,   -- Atlas thường dùng Linear hoặc Quad cho farm
+        Enum.EasingDirection.Out
+    )
+    
+    local tween = TweenService:Create(HRP, tweenInfo, {
+        CFrame = CFrame.new(targetPosition)
     })
+    
     tween:Play()
     tween.Completed:Wait()
+    
+    -- Khôi phục collision
+    for part, value in pairs(oldCanCollide) do
+        part.CanCollide = value
+    end
 end
 
 local function claimPlayerHive()
     for _, Hive in pairs(Hives:GetChildren()) do
-        if Hive.Owner.Value == nil then
-            print("Found Empty Hive")
+        if Hive:FindFirstChild("Owner") and Hive.Owner.Value == nil then
+            print("[Atlas Claim] Tìm thấy hive trống")
             
-            local targetPos = Hive.SpawnPos.Value + Vector3.new(0, 3, 0)
-            FastTween(targetPos, 250) -- số càng lớn càng nhanh
-            print("Tweened To Empty Hive")
+            local target = Hive.SpawnPos.Value.Position + Vector3.new(0, 3, 0)
+            AtlasTween(target, 240)
             
-            task.wait(0.2)
+            task.wait(0.1)
             claimHive:FireServer(Hive.HiveID.Value)
-            print("Claimed Hive!")
-            break
+            print("[Atlas Claim] Đã claim!")
+            return true
         end
     end
-end
-
-local function getPlayerHive()
-    for _, Hive in pairs(Hives:GetChildren()) do
-        if tostring(Hive.Owner.Value) == tostring(Player.Name) then
-            print("Found Hive!")
-            return Hive
-        end
-    end
-    
-    claimPlayerHive()
-    task.wait(1.5)
-    return getPlayerHive()
+    return false
 end
 
 -- Chạy
-local playerHive = getPlayerHive()
-print("Done:", playerHive)
+task.spawn(function()
+    claimPlayerHive()
+end)
