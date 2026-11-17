@@ -13,7 +13,7 @@ local Hives = Workspace:WaitForChild("Honeycombs")
 local claimHive = ReplicatedStorage.Events.ClaimHive
 
 local function AtlasTween(targetPosition, speed)
-    speed = speed or 220
+    speed = speed or 170
     local startPos = HRP.Position
     local distance = (startPos - targetPosition).Magnitude
     local duration = math.clamp(distance / speed, 0.1, 2)
