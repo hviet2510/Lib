@@ -52,7 +52,7 @@ local function claimPlayerHive()
             print("[Atlas Claim] Tìm thấy hive trống")
             
             local target = Hive.SpawnPos.Value.Position + Vector3.new(0, 3, 0)
-            AtlasTween(target, 240)
+            AtlasTween(target, 180)
             
             task.wait(0.1)
             claimHive:FireServer(Hive.HiveID.Value)
